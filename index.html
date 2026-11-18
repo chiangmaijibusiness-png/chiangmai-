@@ -1,0 +1,397 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chiangmai Est 1964 | Store</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#faf8f4;color:#493b32;font-family:Arial,sans-serif}
+header{padding:20px 6%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e9e0d7}
+.logo{font-weight:bold;letter-spacing:2px}
+button{cursor:pointer;border:0;border-radius:8px;padding:13px;background:#594639;color:white;width:100%;margin-top:12px}
+button:hover{opacity:.85}
+input,select,textarea{width:100%;padding:12px;border:1px solid #e4dcd3;border-radius:8px;background:white;color:#493b32}
+label{display:block;font-size:13px;margin:13px 0 7px}
+.hero{text-align:center;padding:55px 15px 30px}
+.hero small{letter-spacing:4px;color:#a58b78}
+.hero h1{font-size:32px}
+.container{max-width:900px;margin:auto;padding:20px}
+.products{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card,.cart,.payment,.admin{background:white;border:1px solid #eee5dc;border-radius:14px;padding:22px;margin-bottom:20px}
+.tag{font-size:11px;letter-spacing:2px;color:#a58b78}
+.price{font-size:25px;font-weight:bold;margin:15px 0}
+.pack{background:#faf8f4;padding:12px;border-radius:8px;margin:10px 0}
+.cart-item{border-bottom:1px solid #eee5dc;padding:15px 0;display:flex;justify-content:space-between;gap:10px}
+.remove{width:auto;background:#a56f60;padding:7px 12px}
+.total{text-align:right;font-size:19px;font-weight:bold;line-height:2}
+.payment-method{border:1px solid #e9e0d7;padding:14px;border-radius:9px;margin:10px 0}
+.payment-method:has(input:checked){border-color:#98745c;background:#faf7f2}
+.qr{width:200px;height:200px;object-fit:contain;border:1px solid #eee;padding:8px;display:block;margin:15px auto}
+.hidden{display:none!important}
+.status{padding:6px 10px;border-radius:20px;background:#f5eddf;font-size:12px}
+.order{border:1px solid #eee5dc;border-radius:10px;padding:15px;margin:12px 0}
+.order img{max-width:200px;max-height:220px;object-fit:contain;display:block;margin:10px 0}
+.approve{background:#65816a}
+.reject{background:#a56f60}
+footer{text-align:center;padding:30px;color:#a39487}
+@media(max-width:650px){.products{grid-template-columns:1fr}.hero h1{font-size:25px}}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="logo">CHIANGMAI EST 1964</div>
+ <a href="#cart" style="color:inherit">🛍 CART (<span id="count">0</span>)</a>
+</header>
+
+<section class="hero">
+ <small>OFFICIAL ONLINE STORE</small>
+ <h1>Everyday Comfort, Everyday Style.</h1>
+ <p>Simple pieces, made for your everyday.</p>
+</section>
+
+<main class="container">
+
+<div class="products">
+<section class="card">
+ <span class="tag">01 / SINGLE ORDER</span>
+ <h2>Individual Shirt</h2>
+ <p>เลือกเสื้อรายตัวตามสีและไซซ์ที่ต้องการ</p>
+ <div class="price">฿459 / ตัว</div>
+ <label>Color</label>
+ <select id="singleColor">
+  <option>Chiangmai Cocoa</option>
+  <option>Pink Dusk</option>
+  <option>Lavender Dream</option>
+ </select>
+ <label>Size</label>
+ <select id="singleSize"></select>
+ <label>Quantity</label>
+ <input id="singleQty" type="number" min="1" value="1">
+ <button onclick="addSingle()">ADD TO CART</button>
+</section>
+
+<section class="card">
+ <span class="tag">02 / SPECIAL BUNDLE</span>
+ <h2>3 Pieces Bundle</h2>
+ <p>เลือกสีและไซซ์แยกกันได้ทั้ง 3 ตัว</p>
+ <div class="price">฿1,299 / เซ็ต</div>
+ <div id="packOptions"></div>
+ <button onclick="addPack()">ADD 3-PIECE SET</button>
+</section>
+</div>
+
+<section class="cart" id="cart">
+ <h2>Shopping Cart 🛒</h2>
+ <div id="cartItems">Your cart is empty.</div>
+ <div class="total">
+  Subtotal: ฿<span id="subtotal">0</span><br>
+  Shipping: ฿<span id="shipping">0</span><hr>
+  Total: ฿<span id="total">0</span>
+ </div>
+</section>
+
+<section class="payment" id="checkout">
+ <h2>Checkout & Payment</h2>
+
+ <label>Customer Name</label>
+ <input id="customerName" placeholder="ชื่อ-นามสกุล">
+
+ <label>Phone Number</label>
+ <input id="phone" type="tel" placeholder="เบอร์โทรศัพท์">
+
+ <label>Shipping Address</label>
+ <textarea id="address" rows="3" placeholder="บ้านเลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea>
+
+ <h3>Payment Method</h3>
+
+ <label class="payment-method">
+  <input type="radio" name="payment" value="PromptPay" checked>
+  PromptPay QR Code
+ </label>
+
+ <div id="qrSection">
+  <p style="text-align:center">สแกน QR Code เพื่อชำระเงิน</p>
+  <img class="qr" src="promptpay-qr.png" alt="PromptPay QR Code"
+       onerror="this.style.display='none';document.getElementById('qrMissing').style.display='block'">
+  <p id="qrMissing" style="display:none;text-align:center;color:#a56f60">
+   กรุณาเพิ่มไฟล์ QR Code ของร้านชื่อ promptpay-qr.png
+  </p>
+  <p style="text-align:center;font-size:13px">PromptPay: [ใส่เบอร์หรือเลขพร้อมเพย์]</p>
+ </div>
+
+ <label class="payment-method">
+  <input type="radio" name="payment" value="Bank Transfer">
+  Bank Transfer / โอนผ่านบัญชีธนาคาร
+ </label>
+
+ <div id="bankSection" class="hidden">
+  <p><b>ธนาคาร:</b> [ชื่อธนาคาร]</p>
+  <p><b>ชื่อบัญชี:</b> [ชื่อเจ้าของบัญชี]</p>
+  <p><b>เลขบัญชี:</b> [เลขบัญชีธนาคาร]</p>
+ </div>
+
+ <hr>
+ <h3>Payment Slip</h3>
+ <p style="font-size:13px;color:#8d8075">
+  กรุณาอัปโหลดสลิปหลังจากโอนเงินเรียบร้อยแล้ว
+ </p>
+ <input type="file" id="slip" accept="image/jpeg,image/png,image/webp">
+
+ <p style="font-size:12px;color:#a58b78">
+  หมายเหตุ: คำสั่งซื้อจะมีสถานะรอตรวจสอบจนกว่าร้านค้าจะยืนยันการชำระเงิน
+ </p>
+
+ <button onclick="submitOrder()">PLACE ORDER</button>
+ <div id="message" style="margin-top:15px"></div>
+</section>
+
+<!-- ADMIN PANEL -->
+<section class="admin">
+ <h2>Store Management</h2>
+ <p style="font-size:13px;color:#8d8075">สำหรับร้านค้าจัดการรายการสั่งซื้อ</p>
+ <button onclick="toggleAdmin()">OPEN ADMIN DASHBOARD</button>
+ <div id="adminPanel" class="hidden">
+  <h3>Order Management</h3>
+  <div id="orders"></div>
+ </div>
+</section>
+</main>
+
+<footer>CHIANGMAI EST 1964 · MADE WITH LOVE</footer>
+
+<script>
+const UNIT_PRICE=459;
+const SET_PRICE=1299;
+const SHIPPING=60;
+const sizes=["XS","S","M","L","XL","2XL","3XL","4XL","5XL","6XL","7XL","8XL","9XL"];
+
+let cart=[];
+let orders=JSON.parse(localStorage.getItem("cm_orders")||"[]");
+
+function fillSizes(el){
+ sizes.forEach(s=>{
+  let o=document.createElement("option");
+  o.value=s;o.textContent=s;el.appendChild(o);
+ });
+}
+fillSizes(document.getElementById("singleSize"));
+
+for(let i=1;i<=3;i++){
+ document.getElementById("packOptions").innerHTML+=`
+ <div class="pack">
+  <b>Shirt ${i}</b>
+  <label>Color</label>
+  <select id="color${i}">
+   <option>Chiangmai Cocoa</option>
+   <option>Pink Dusk</option>
+   <option>Lavender Dream</option>
+  </select>
+  <label>Size</label>
+  <select id="size${i}"></select>
+ </div>`;
+ fillSizes(document.getElementById("size"+i));
+}
+
+function addSingle(){
+ let qty=Number(document.getElementById("singleQty").value);
+ if(!Number.isInteger(qty)||qty<1)return alert("กรุณาระบุจำนวนให้ถูกต้อง");
+ cart.push({
+  type:"Single",
+  color:document.getElementById("singleColor").value,
+  size:document.getElementById("singleSize").value,
+  qty,price:qty*UNIT_PRICE
+ });
+ renderCart();
+}
+
+function addPack(){
+ let items=[];
+ for(let i=1;i<=3;i++){
+  items.push({
+   color:document.getElementById("color"+i).value,
+   size:document.getElementById("size"+i).value
+  });
+ }
+ cart.push({type:"3-Piece Set",items,qty:3,price:SET_PRICE});
+ renderCart();
+}
+
+function renderCart(){
+ let area=document.getElementById("cartItems");
+ area.innerHTML="";
+ let subtotal=0,count=0;
+
+ cart.forEach((x,i)=>{
+  subtotal+=x.price;count+=x.qty;
+  let detail=x.type==="Single"
+   ? `${x.color} / ${x.size} / ${x.qty} ตัว`
+   : x.items.map((v,j)=>`ตัว ${j+1}: ${v.color} / ${v.size}`).join("<br>");
+
+  let div=document.createElement("div");
+  div.className="cart-item";
+  let info=document.createElement("div");
+  info.innerHTML=`<b>${x.type}</b><br><small>${detail}</small>`;
+  let action=document.createElement("div");
+  action.style.textAlign="right";
+  action.innerHTML=`฿${x.price.toLocaleString()}`;
+  let btn=document.createElement("button");
+  btn.className="remove";
+  btn.textContent="Remove";
+  btn.onclick=()=>{cart.splice(i,1);renderCart()};
+  action.appendChild(btn);
+  div.append(info,action);
+  area.appendChild(div);
+ });
+
+ if(!cart.length)area.textContent="Your cart is empty.";
+
+ document.getElementById("count").textContent=count;
+ document.getElementById("subtotal").textContent=subtotal.toLocaleString();
+ document.getElementById("shipping").textContent=cart.length?SHIPPING:0;
+ document.getElementById("total").textContent=(subtotal+(cart.length?SHIPPING:0)).toLocaleString();
+}
+
+document.querySelectorAll('input[name="payment"]').forEach(el=>{
+ el.addEventListener("change",()=>{
+  let qr=el.value==="PromptPay"&&el.checked;
+  if(qr){
+   document.getElementById("qrSection").classList.remove("hidden");
+   document.getElementById("bankSection").classList.add("hidden");
+  }else if(el.checked){
+   document.getElementById("qrSection").classList.add("hidden");
+   document.getElementById("bankSection").classList.remove("hidden");
+  }
+ });
+});
+
+function submitOrder(){
+ if(!cart.length)return alert("กรุณาเลือกสินค้าก่อน");
+
+ let name=document.getElementById("customerName").value.trim();
+ let phone=document.getElementById("phone").value.trim();
+ let address=document.getElementById("address").value.trim();
+ let slip=document.getElementById("slip").files[0];
+ let method=document.querySelector('input[name="payment"]:checked').value;
+
+ if(!name||!phone||!address)return alert("กรุณากรอกข้อมูลให้ครบ");
+ if(!/^[0-9+\-\s]{9,15}$/.test(phone))return alert("กรุณาตรวจสอบเบอร์โทรศัพท์");
+ if(!slip)return alert("กรุณาแนบสลิปการโอนเงิน");
+ if(!["image/jpeg","image/png","image/webp"].includes(slip.type))return alert("รองรับเฉพาะไฟล์ JPG PNG และ WEBP");
+ if(slip.size>3*1024*1024)return alert("ไฟล์สลิปต้องมีขนาดไม่เกิน 3 MB");
+
+ let subtotal=cart.reduce((s,x)=>s+x.price,0);
+ let total=subtotal+SHIPPING;
+
+ let reader=new FileReader();
+ reader.onload=()=>{
+  let order={
+   id:"CM"+Date.now(),
+   name,phone,address,method,
+   items:JSON.parse(JSON.stringify(cart)),
+   subtotal,shipping:SHIPPING,total,
+   slip:reader.result,
+   status:"รอตรวจสอบ",
+   date:new Date().toLocaleString("th-TH")
+  };
+
+  try{
+   orders.push(order);
+   localStorage.setItem("cm_orders",JSON.stringify(orders));
+  }catch(e){
+   alert("พื้นที่จัดเก็บไม่เพียงพอ กรุณาติดต่อผู้ดูแลเว็บไซต์");
+   return;
+  }
+
+  document.getElementById("message").innerHTML=
+   `<b style="color:#65816a">ส่งคำสั่งซื้อเรียบร้อยแล้ว</b><br>
+   Order ID: ${order.id}<br>
+   ยอดชำระ ฿${total.toLocaleString()}<br>
+   สถานะ: รอตรวจสอบสลิป`;
+
+  cart=[];
+  renderCart();
+  document.getElementById("slip").value="";
+ };
+ reader.readAsDataURL(slip);
+}
+
+function toggleAdmin(){
+ let panel=document.getElementById("adminPanel");
+ panel.classList.toggle("hidden");
+ renderOrders();
+}
+
+function renderOrders(){
+ let area=document.getElementById("orders");
+ area.innerHTML="";
+
+ if(!orders.length){
+  area.textContent="ยังไม่มีรายการสั่งซื้อ";
+  return;
+ }
+
+ orders.slice().reverse().forEach((o)=>{
+  let div=document.createElement("div");
+  div.className="order";
+
+  let detail=o.items.map(x=>{
+   if(x.type==="Single")
+    return `เสื้อรายตัว: ${x.color} / ${x.size} / ${x.qty} ตัว`;
+   return "เซ็ต 3 ตัว: "+x.items.map((v,i)=>
+    `ตัว ${i+1} ${v.color} / ${v.size}`).join(", ");
+  }).join("<br>");
+
+  div.innerHTML=`
+   <b>Order: ${o.id}</b><br>
+   <span class="status">${o.status}</span>
+   <p>วันที่: ${o.date}</p>
+   <p>ลูกค้า: ${o.name}<br>โทร: ${o.phone}<br>ที่อยู่: ${o.address}</p>
+   <p>${detail}</p>
+   <p>ช่องทางชำระ: ${o.method}</p>
+   <b>ยอดรวม: ฿${o.total.toLocaleString()}</b><br>
+   <p>หลักฐานการโอนเงิน:</p>
+   <img src="${o.slip}" alt="Payment slip">
+   <div class="admin-actions"></div>`;
+
+  let actions=div.querySelector(".admin-actions");
+  let approve=document.createElement("button");
+  approve.className="approve";
+  approve.textContent="อนุมัติการชำระเงิน";
+  approve.onclick=()=>updateStatus(o.id,"ชำระเงินแล้ว");
+
+  let reject=document.createElement("button");
+  reject.className="reject";
+  reject.textContent="ปฏิเสธ / ให้ส่งสลิปใหม่";
+  reject.onclick=()=>updateStatus(o.id,"ปฏิเสธสลิป");
+
+  let shipped=document.createElement("button");
+  shipped.textContent="จัดส่งสินค้าแล้ว";
+  shipped.onclick=()=>updateStatus(o.id,"จัดส่งแล้ว");
+
+  if(o.status==="รอตรวจสอบ"||o.status==="ปฏิเสธสลิป"){
+   actions.append(approve,reject);
+  }else if(o.status==="ชำระเงินแล้ว"){
+   actions.append(shipped);
+  }
+  area.appendChild(div);
+ });
+}
+
+function updateStatus(id,status){
+ let index=orders.findIndex(x=>x.id===id);
+ if(index<0)return;
+ if(!confirm("ยืนยันเปลี่ยนสถานะเป็น "+status+" ?"))return;
+ orders[index].status=status;
+ try{
+  localStorage.setItem("cm_orders",JSON.stringify(orders));
+  renderOrders();
+ }catch(e){alert("บันทึกสถานะไม่สำเร็จ")}
+}
+
+renderCart();
+</script>
+</body>
+</html>
